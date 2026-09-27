@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI-Based Driver Behaviour, Fatigue and Risk Detection System</title>
+  <meta name="description" content="State-of-the-Art Automotive AI Telematics combining Camera DMS and Vehicle Sensor Telemetry via Multi-modal CNN and LSTM.">
+  
+  <!-- Modern Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Feather Icons -->
+  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+  
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="cockpit-container">
+    <!-- Top Cockpit Header -->
+    <header class="cockpit-header">
+      <div class="brand-group">
+        <div class="system-status-indicator">
+          <span class="pulse-dot" id="systemPulse"></span>
+          <span class="status-label" id="connectionStatus">SYSTEM INITIALIZING</span>
+        </div>
+        <div class="brand-title">
+          <h1>AI DRIVER BEHAVIOUR & RISK TELEMATICS</h1>
+          <span class="brand-subtitle">MULTIMODAL CNN-LSTM • SENSOR FUSION • DMS ACTIVE</span>
+        </div>
+      </div>
+
+      <div class="header-center-alert" id="masterAlertBanner">
+        <i data-feather="shield" class="alert-icon" id="alertIcon"></i>
+        <div class="alert-text-group">
+          <span class="alert-headline" id="alertHeadline">SYSTEM NOMINAL</span>
+          <span class="alert-subtext" id="alertSubtext">Safe driving conditions verified</span>
+        </div>
+      </div>
+
+      <div class="header-controls">
+        <button class="audio-toggle-btn" id="audioToggleBtn" title="Toggle Vehicle Alert Chimes">
+          <i data-feather="volume-2" id="audioIcon"></i>
+          <span>AUDIO ALERTS</span>
+        </button>
+        <button class="metrics-modal-btn" id="openMetricsBtn">
+          <i data-feather="activity"></i>
+          <span>AI METRICS</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Cockpit Grid -->
+    <main class="cockpit-grid">
+      
+      <!-- LEFT COLUMN: Driver Monitoring System (Camera DMS & Gaze/Head Pose) -->
+      <section class="panel dms-panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <i data-feather="camera"></i>
+            <span>DRIVER MONITORING SYSTEM (DMS)</span>
+          </div>
+          <div class="dms-mode-pills">
+            <button class="mode-pill active" id="modeSimBtn">SIMULATION</button>
+            <button class="mode-pill" id="modeWebcamBtn">LIVE WEBCAM</button>
+          </div>
+        </div>
+
+        <!-- Video HUD Viewport -->
+        <div class="dms-viewport-container">
+          <video id="webcamElement" autoplay playsinline muted class="hidden-feed"></video>
+          <img id="simFeedImage" src="" alt="Driver Camera Feed" class="sim-feed-img">
+          
+          <!-- Augmented HUD Overlays on Top of Camera -->
+          <div class="camera-hud-overlay">
+            <div class="hud-top-row">
+              <span class="hud-tag" id="hudFps">10.0 FPS</span>
+              <span class="hud-tag" id="hudFaceTrack">FACE: LOCKED</span>
+              <span class="hud-tag phone-tag" id="hudPhoneTag">PHONE: NONE</span>
+            </div>
+
+            <!-- Visual Reticle & Eye Boxes -->
+            <div class="hud-reticle-box" id="hudFaceBox">
+              <div class="eye-box left-eye" id="hudLeftEye"></div>
+              <div class="eye-box right-eye" id="hudRightEye"></div>
+            </div>
+
+            <div class="hud-bottom-row">
+              <div class="hud-metric">
+                <span class="metric-label">EYE OPENNESS (EAR)</span>
+                <div class="meter-bar-track">
+                  <div class="meter-bar-fill" id="earMeterFill" style="width: 85%;"></div>
+                </div>
+                <span class="metric-val" id="earVal">0.85</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Head Pose & Gaze Diagnostics -->
+        <div class="dms-diagnostics-grid">
+          <div class="diag-card">
+            <span class="diag-label">HEAD PITCH (NOD)</span>
+            <span class="diag-value" id="headPitchVal">0.0°</span>
+            <div class="horizon-gauge">
+              <div class="horizon-level" id="pitchGaugeLevel"></div>
+            </div>
+          </div>
+          <div class="diag-card">
+            <span class="diag-label">HEAD YAW (GLANCE)</span>
+            <span class="diag-value" id="headYawVal">0.0°</span>
+            <div class="horizon-gauge">
+              <div class="horizon-level-yaw" id="yawGaugeLevel"></div>
+            </div>
+          </div>
+          <div class="diag-card">
+            <span class="diag-label">PHONE USAGE CONF</span>
+            <span class="diag-value" id="phoneUsageVal">0%</span>
+            <div class="mini-bar-track">
+              <div class="mini-bar-fill" id="phoneBarFill" style="width: 0%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Active Safety Alerts Box -->
+        <div class="active-alerts-container">
+          <div class="alerts-title">
+            <i data-feather="alert-triangle"></i>
+            <span>ACTIVE HAZARD DIAGNOSTICS</span>
+          </div>
+          <ul class="alerts-list" id="activeAlertsList">
+            <li class="alert-item safe"><i data-feather="check-circle"></i> Driver attentive. Parameters normal.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- CENTER COLUMN: Instrument Cluster & Telemetry Gauges -->
+      <section class="panel cluster-panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <i data-feather="cpu"></i>
+            <span>VEHICLE TELEMETRY & MULTI-PARAM SENSORS</span>
+          </div>
+          <span class="panel-badge" id="telemetryStateBadge">CRUISING</span>
+        </div>
+
+        <!-- Primary Gauges Row -->
+        <div class="cluster-gauges-row">
+          <!-- Speedometer SVG Dial -->
+          <div class="gauge-card">
+            <div class="svg-gauge-container">
+              <svg class="speedo-svg" viewBox="0 0 200 200">
+                <circle class="gauge-bg-circle" cx="100" cy="100" r="80"></circle>
+                <circle class="gauge-progress-circle" id="speedoCircle" cx="100" cy="100" r="80"></circle>
+              </svg>
+              <div class="speedo-inner">
+                <span class="speedo-number" id="speedValue">65</span>
+                <span class="speedo-unit">KM / H</span>
+              </div>
+            </div>
+            <span class="gauge-title">VEHICLE SPEED</span>
+          </div>
+
+          <!-- Master Composite Risk Score Radial Gauge -->
+          <div class="gauge-card risk-gauge-card">
+            <div class="svg-gauge-container">
+              <svg class="risk-svg" viewBox="0 0 200 200">
+                <circle class="gauge-bg-circle" cx="100" cy="100" r="80"></circle>
+                <circle class="risk-progress-circle" id="riskCircle" cx="100" cy="100" r="80"></circle>
+              </svg>
+              <div class="risk-inner">
+                <span class="risk-number" id="riskScoreValue">15</span>
+                <span class="risk-unit">% RISK</span>
+                <span class="risk-level-badge safe" id="riskLevelBadge">SAFE</span>
+              </div>
+            </div>
+            <span class="gauge-title">COMPOSITE RISK SCORE</span>
+          </div>
+        </div>
+
+        <!-- Vehicle Sensor Dynamics Bars -->
+        <div class="telemetry-dynamics-grid">
+          <!-- Acceleration / Jerk -->
+          <div class="dynamic-cell">
+            <div class="cell-head">
+              <span>LONGITUDINAL ACCEL</span>
+              <span class="cell-val" id="accelValue">+0.0 m/s²</span>
+            </div>
+            <div class="bipolar-bar-container">
+              <div class="bipolar-center"></div>
+              <div class="bipolar-fill" id="accelBarFill"></div>
+            </div>
+            <div class="bipolar-ticks">
+              <span>-8 (Decel)</span>
+              <span>0</span>
+              <span>+8 (Accel)</span>
+            </div>
+          </div>
+
+          <!-- Braking Pedal Pressure -->
+          <div class="dynamic-cell">
+            <div class="cell-head">
+              <span>BRAKING INTENSITY</span>
+              <span class="cell-val" id="brakeValue">0 %</span>
+            </div>
+            <div class="linear-bar-container">
+              <div class="linear-bar-fill brake-fill" id="brakeBarFill" style="width: 0%;"></div>
+            </div>
+            <div class="linear-ticks">
+              <span>0% Off</span>
+              <span>50%</span>
+              <span>100% Emergency</span>
+            </div>
+          </div>
+
+          <!-- Steering Angle Wheel Visualizer -->
+          <div class="dynamic-cell">
+            <div class="cell-head">
+              <span>STEERING WHEEL ANGLE</span>
+              <span class="cell-val" id="steerValue">0.0°</span>
+            </div>
+            <div class="steering-vis-wrapper">
+              <div class="steering-wheel" id="steeringWheelIcon">
+                <div class="steer-notch"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Lane Keeping Highway Lane Deviation -->
+          <div class="dynamic-cell">
+            <div class="cell-head">
+              <span>LANE DEVIATION</span>
+              <span class="cell-val" id="laneDevValue">0.00 m</span>
+            </div>
+            <div class="lane-highway-container">
+              <div class="lane-border-left"></div>
+              <div class="lane-center-line"></div>
+              <div class="car-in-lane" id="carLaneIcon"></div>
+              <div class="lane-border-right"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Real-Time Multi-Parameter Strip Chart (Oscilloscope) -->
+        <div class="stripchart-container">
+          <div class="stripchart-header">
+            <span>REAL-TIME TEMPORAL OSCILLOSCOPE (30-SEC WINDOW)</span>
+            <div class="chart-legends">
+              <span class="legend-item"><span class="dot" style="background: #06b6d4;"></span>Speed</span>
+              <span class="legend-item"><span class="dot" style="background: #ef4444;"></span>Braking</span>
+              <span class="legend-item"><span class="dot" style="background: #10b981;"></span>Eye Openness</span>
+              <span class="legend-item"><span class="dot" style="background: #f59e0b;"></span>Risk Score</span>
+            </div>
+          </div>
+          <canvas id="temporalStripChart" width="600" height="110"></canvas>
+        </div>
+      </section>
+
+      <!-- RIGHT COLUMN: AI Classifier & Scenario Controls -->
+      <section class="panel ai-control-panel">
+        
+        <!-- Behavior Classification Probabilities (CNN/LSTM Output) -->
+        <div class="sub-panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <i data-feather="layers"></i>
+              <span>DRIVER BEHAVIOR CLASSIFICATION</span>
+            </div>
+            <span class="active-class-pill" id="predictedClassPill">NORMAL</span>
+          </div>
+
+          <div class="behavior-bars-list" id="behaviorBarsList">
+            <!-- 6 Class bars rendered dynamically via JavaScript -->
+          </div>
+        </div>
+
+        <!-- Scenario Presets -->
+        <div class="sub-panel scenario-presets-panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <i data-feather="play-circle"></i>
+              <span>SIMULATION PRESETS</span>
+            </div>
+            <button class="reset-btn" id="resetBtn" title="Reset Buffer to Baseline">
+              <i data-feather="rotate-ccw"></i>
+            </button>
+          </div>
+
+          <div class="presets-grid" id="presetsGrid">
+            <!-- Rendered by JS: Normal, Aggressive, Distracted, Drowsy, Unsafe Braking, Unsafe Accel -->
+          </div>
+        </div>
+
+        <!-- Interactive Telemetry Sliders -->
+        <div class="sub-panel manual-sliders-panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <i data-feather="sliders"></i>
+              <span>INTERACTIVE PARAMETER TESTING</span>
+            </div>
+            <span class="slider-mode-tag" id="sliderModeTag">LIVE MANUAL OVERRIDE</span>
+          </div>
+
+          <div class="sliders-list">
+            <!-- Speed Slider -->
+            <div class="slider-group">
+              <div class="slider-labels">
+                <span>Speed</span>
+                <span class="slider-val" id="slideSpeedVal">65 km/h</span>
+              </div>
+              <input type="range" id="slideSpeed" min="0" max="180" step="1" value="65">
+            </div>
+
+            <!-- Accel Slider -->
+            <div class="slider-group">
+              <div class="slider-labels">
+                <span>Acceleration / Decel</span>
+                <span class="slider-val" id="slideAccelVal">0.0 m/s²</span>
+              </div>
+              <input type="range" id="slideAccel" min="-8" max="8" step="0.2" value="0.0">
+            </div>
+
+            <!-- Brake Slider -->
+            <div class="slider-group">
+              <div class="slider-labels">
+                <span>Braking Pedal</span>
+                <span class="slider-val" id="slideBrakeVal">0 %</span>
+              </div>
+              <input type="range" id="slideBrake" min="0" max="100" step="1" value="0">
+            </div>
+
+            <!-- Eye Closure Slider -->
+            <div class="slider-group">
+              <div class="slider-labels">
+                <span>Eye Openness (EAR)</span>
+                <span class="slider-val" id="slideEarVal">0.85 (Open)</span>
+              </div>
+              <input type="range" id="slideEar" min="0.0" max="1.0" step="0.02" value="0.85">
+            </div>
+
+            <!-- Head Pitch (Drowsy Nod) Slider -->
+            <div class="slider-group">
+              <div class="slider-labels">
+                <span>Head Pitch (Droop/Nod)</span>
+                <span class="slider-val" id="slidePitchVal">0°</span>
+              </div>
+              <input type="range" id="slidePitch" min="-45" max="45" step="1" value="0">
+            </div>
+
+            <!-- Head Yaw (Averted Gaze) Slider -->
+            <div class="slider-group">
+              <div class="slider-labels">
+                <span>Head Yaw (Distraction)</span>
+                <span class="slider-val" id="slideYawVal">0°</span>
+              </div>
+              <input type="range" id="slideYaw" min="-60" max="60" step="1" value="0">
+            </div>
+
+            <!-- Phone Usage Toggle -->
+            <div class="slider-group phone-toggle-group">
+              <div class="slider-labels">
+                <span>Phone Interaction</span>
+                <span class="slider-val" id="slidePhoneVal">NO PHONE</span>
+              </div>
+              <input type="range" id="slidePhone" min="0.0" max="1.0" step="0.05" value="0.0">
+            </div>
+          </div>
+        </div>
+
+      </section>
+    </main>
+
+    <!-- AI Architecture & Evaluation Metrics Modal -->
+    <div class="modal-backdrop" id="metricsModal">
+      <div class="modal-window">
+        <div class="modal-header">
+          <div class="modal-title">
+            <i data-feather="cpu"></i>
+            <span>AI ENGINE ARCHITECTURE & PERFORMANCE METRICS</span>
+          </div>
+          <button class="modal-close-btn" id="closeMetricsBtn"><i data-feather="x"></i></button>
+        </div>
+
+        <div class="modal-body">
+          <!-- Architecture Flowchart -->
+          <div class="arch-section">
+            <h3 class="section-title">SYSTEM ARCHITECTURE PIPELINE</h3>
+            <div class="arch-diagram-flow">
+              <div class="flow-card">
+                <span class="flow-step">INPUT STAGE</span>
+                <h4>Camera + Sensors</h4>
+                <p>60 FPS DMS Driver Camera + 8 Vehicle Telemetry Channels</p>
+              </div>
+              <div class="flow-arrow">➔</div>
+              <div class="flow-card">
+                <span class="flow-step">FEATURE EXTRACTION</span>
+                <h4>Vision CNN + Telemetry MLP</h4>
+                <p>Spatial EAR, Head Pose, Phone Bounding + Normalized Dynamics</p>
+              </div>
+              <div class="flow-arrow">➔</div>
+              <div class="flow-card highlight">
+                <span class="flow-step">TEMPORAL MODEL</span>
+                <h4>Bi-Directional LSTM</h4>
+                <p>30-Step Sliding Buffer (3.0s) + Learned Self-Attention</p>
+              </div>
+              <div class="flow-arrow">➔</div>
+              <div class="flow-card">
+                <span class="flow-step">DUAL HEADS</span>
+                <h4>Behavior + Risk Score</h4>
+                <p>6-Class Softmax + Continuous Risk Score [0-100%]</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Performance Scorecards -->
+          <div class="metrics-cards-grid" id="metricsCardsGrid">
+            <div class="mcard">
+              <span class="mcard-label">CNN-LSTM ACCURACY</span>
+              <span class="mcard-val" id="metricDeepAcc">--%</span>
+            </div>
+            <div class="mcard">
+              <span class="mcard-label">WEIGHTED F1 SCORE</span>
+              <span class="mcard-val" id="metricDeepF1">--</span>
+            </div>
+            <div class="mcard">
+              <span class="mcard-label">RISK MAE (ERROR)</span>
+              <span class="mcard-val" id="metricRiskMae">--</span>
+            </div>
+            <div class="mcard">
+              <span class="mcard-label">ML BASELINE ACCURACY</span>
+              <span class="mcard-val" id="metricMlAcc">--%</span>
+            </div>
+          </div>
+
+          <!-- Confusion Matrix Table & Feature Importance -->
+          <div class="metrics-details-row">
+            <div class="detail-box">
+              <h4>CONFUSION MATRIX (VALIDATION DATASET)</h4>
+              <div class="cm-table-wrapper" id="cmTableContainer">
+                <!-- CM dynamically rendered -->
+              </div>
+            </div>
+            <div class="detail-box">
+              <h4>RANDOM FOREST FEATURE IMPORTANCE (TOP 8)</h4>
+              <div class="feature-importance-list" id="featureImportanceList">
+                <!-- Rendered dynamically -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="/static/app.js"></script>
+  <script>
+    feather.replace();
+  </script>
+</body>
+</html>

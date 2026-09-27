@@ -1,0 +1,253 @@
+{
+  "classes": [
+    "Normal",
+    "Aggressive",
+    "Distracted",
+    "Drowsy",
+    "Unsafe braking",
+    "Unsafe acceleration"
+  ],
+  "cnn_lstm_model": {
+    "best_epoch": 10,
+    "val_accuracy": 1.0,
+    "val_f1": 1.0,
+    "risk_mae": 4.256927490234375,
+    "confusion_matrix": [
+      [
+        22,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        20,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        21,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        22,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        29,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        30
+      ]
+    ],
+    "classification_report": {
+      "Normal": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 22.0
+      },
+      "Aggressive": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 20.0
+      },
+      "Distracted": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 21.0
+      },
+      "Drowsy": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 22.0
+      },
+      "Unsafe braking": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 29.0
+      },
+      "Unsafe acceleration": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 30.0
+      },
+      "accuracy": 1.0,
+      "macro avg": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 144.0
+      },
+      "weighted avg": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 144.0
+      }
+    }
+  },
+  "ml_baseline_model": {
+    "accuracy": 1.0,
+    "f1_score": 1.0,
+    "confusion_matrix": [
+      [
+        22,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        20,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        21,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        22,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        29,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        30
+      ]
+    ],
+    "classification_report": {
+      "Normal": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 22.0
+      },
+      "Aggressive": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 20.0
+      },
+      "Distracted": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 21.0
+      },
+      "Drowsy": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 22.0
+      },
+      "Unsafe braking": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 29.0
+      },
+      "Unsafe acceleration": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 30.0
+      },
+      "accuracy": 1.0,
+      "macro avg": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 144.0
+      },
+      "weighted avg": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 144.0
+      }
+    },
+    "feature_importance": {
+      "eye_ear_min": 0.08385092094798954,
+      "speed_std": 0.07197460452235722,
+      "eye_ear_mean": 0.06684820311687467,
+      "perclos": 0.06459028824767343,
+      "head_pitch_min": 0.06116960135549898,
+      "lane_dev_std": 0.06083992203066915,
+      "accel_mean": 0.05383214849422575,
+      "steer_std": 0.05295631507005537,
+      "head_yaw_std": 0.05120375135798668,
+      "speed_mean": 0.04654152613977764,
+      "head_pitch_mean": 0.04533057822096856,
+      "brake_mean": 0.04208067333564192,
+      "steer_rate": 0.04149508493680291,
+      "brake_max": 0.03993743895708427,
+      "accel_max": 0.039563514570922574,
+      "accel_std": 0.03935936434850108,
+      "brake_std": 0.026256341816887144,
+      "accel_min": 0.024687481337568533,
+      "steer_max_abs": 0.024010813500040522,
+      "speed_max": 0.019506864986150434,
+      "jerk_max": 0.01888578780954293,
+      "jerk_mean": 0.014895991455212072,
+      "head_yaw_max": 0.009808210956405756,
+      "lane_dev_max": 0.00013534146493364717,
+      "head_yaw_mean": 0.00010249590782285507,
+      "phone_max": 0.00010239148063714142,
+      "lane_dev_mean": 3.4343631769255433e-05,
+      "phone_mean": 0.0,
+      "phone_active_ratio": 0.0
+    }
+  }
+}
