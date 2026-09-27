@@ -33,5 +33,5 @@ dependencies = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/your-username/driver-risk-detection"
-"Bug Tracker" = "https://github.com/your-username/driver-risk-detection/issues"
+"Homepage" = "https://github.com/anshika-lang/driver-risk-detection"
+"Bug Tracker" = "https://github.com/anshika-lang/driver-risk-detection/issues"

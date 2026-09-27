@@ -35,7 +35,7 @@ Built a real-time automotive center console powered by FastAPI and 10 Hz bi-dire
 • Interactive sliders allowing instant manual parameter stress-testing
 
 Check out the full open-source code and system architecture on GitHub:
-👉 [https://github.com/your-username/driver-risk-detection]
+👉 https://github.com/anshika-lang/driver-risk-detection
 
 I’d love to hear your thoughts on multimodal sensor fusion and ADAS safety systems! 💬
 
@@ -73,7 +73,7 @@ The system doesn’t just output a static label — it continuously estimates a 
 The entire pipeline runs at sub-20ms latency on CPU, packaged into a futuristic automotive cockpit HUD with real-time WebSocket streaming.
 
 The project is completely open-source! Check it out below:
-🔗 GitHub: [https://github.com/your-username/driver-risk-detection]
+🔗 GitHub: https://github.com/anshika-lang/driver-risk-detection
 
 What are your thoughts on combining vision AI with edge sensor telematics in modern vehicles?
 

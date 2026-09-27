@@ -168,7 +168,7 @@ The built-in telematics dashboard features:
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/your-username/driver-risk-detection.git
+git clone https://github.com/anshika-lang/driver-risk-detection.git
 cd driver-risk-detection
 ```
 
